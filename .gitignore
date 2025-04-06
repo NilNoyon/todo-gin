@@ -1,0 +1,20 @@
+# Go binaries and object files
+*.exe
+*.exe~
+*.out
+*.a
+*.test
+
+# Go modules cache
+/go.mod
+/go.sum
+
+# VSCode settings
+.vscode/
+
+# IDE settings
+.idea/
+
+# OS-specific files
+.DS_Store
+Thumbs.db

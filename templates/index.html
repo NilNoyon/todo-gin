@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do App</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        #todo-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .todo-item {
+            margin-bottom: 10px;
+        }
+        .todo-item button {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>To-Do List</h1>
+    <form id="todo-form">
+        <input type="text" id="title" placeholder="Enter a new task" required />
+        <button type="submit">Add To-Do</button>
+    </form>
+    
+    <ul id="todo-list"></ul>
+
+    <script>
+        // Fetch todos from the API
+        function fetchTodos() {
+            axios.get('/api/todos')
+                .then(response => {
+                    const todos = response.data;
+                    const todoList = document.getElementById('todo-list');
+                    todoList.innerHTML = '';
+
+                    todos.forEach(todo => {
+                        const li = document.createElement('li');
+                        li.className = 'todo-item';
+                        li.innerHTML = `
+                            <span>${todo.title}</span> 
+                            <button onclick="markDone(${todo.id})">Mark Done</button> 
+                            <button onclick="deleteTodo(${todo.id})">Delete</button>
+                        `;
+                        todoList.appendChild(li);
+                    });
+                })
+                .catch(error => console.error("Error fetching todos:", error));
+        }
+
+        // Add new todo
+        document.getElementById('todo-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const title = document.getElementById('title').value;
+
+            if (title) {
+                axios.post('/api/todos', { title, done: false })
+                    .then(response => {
+                        fetchTodos();
+                        document.getElementById('title').value = ''; // Clear input
+                    })
+                    .catch(error => console.error("Error adding todo:", error));
+            }
+        });
+
+        // Mark todo as done
+        function markDone(id) {
+            axios.put(`/api/todos/${id}`)
+                .then(response => {
+                    fetchTodos();
+                })
+                .catch(error => console.error("Error marking todo as done:", error));
+        }
+
+        // Delete todo
+        function deleteTodo(id) {
+            axios.delete(`/api/todos/${id}`)
+                .then(response => {
+                    fetchTodos();
+                })
+                .catch(error => console.error("Error deleting todo:", error));
+        }
+
+        // Initial fetch of todos when page loads
+        fetchTodos();
+    </script>
+</body>
+</html>
